@@ -16,6 +16,8 @@ class _ExampleCustomState extends State<ExampleCustom> {
 
   late bool _loop;
 
+  late bool _reverse;
+
   late bool _autoplay;
 
   late int _autoplayDelay;
@@ -80,6 +82,7 @@ class _ExampleCustomState extends State<ExampleCustom> {
     _radius = 10.0;
     _padding = 0.0;
     _loop = true;
+    _reverse = false;
     _itemCount = 3;
     _autoplay = false;
     _autoplayDelay = 3000;
@@ -117,12 +120,13 @@ class _ExampleCustomState extends State<ExampleCustom> {
       scale: _scale,
       itemWidth: 300.0,
       controller: _controller,
-      layout: _layout,
+      layout: SwiperLayout.STACK,
       outer: _outer,
       itemHeight: 200.0,
       viewportFraction: _viewportFraction,
       autoplayDelay: _autoplayDelay,
       loop: _loop,
+      reverse: _reverse,
       autoplay: _autoplay,
       itemBuilder: _buildItem,
       itemCount: _itemCount,
@@ -213,6 +217,12 @@ class _ExampleCustomState extends State<ExampleCustom> {
             child: Switch(
                 value: _loop,
                 onChanged: (bool value) => setState(() => _loop = value)),
+          ),
+          FormWidget(
+            label: 'reverse',
+            child: Switch(
+                value: _reverse,
+                onChanged: (bool value) => setState(() => _reverse = value)),
           ),
           FormWidget(
             label: 'outer',

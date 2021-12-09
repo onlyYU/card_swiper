@@ -113,6 +113,9 @@ class Swiper extends StatefulWidget {
 
   final PageIndicatorLayout indicatorLayout;
 
+  /// 反向滑动 只有当 [SwiperLayout] == STACK 时生效
+  final bool? reverse;
+
   Swiper({
     this.itemBuilder,
     this.indicatorLayout = PageIndicatorLayout.NONE,
@@ -148,6 +151,7 @@ class Swiper extends StatefulWidget {
     this.outer = false,
     this.scale,
     this.fade,
+    this.reverse,
   })  : assert(
           itemBuilder != null || transformer != null,
           'itemBuilder and transformItemBuilder must not be both null',
@@ -478,6 +482,7 @@ class _SwiperState extends _SwiperTimerMixin {
         itemBuilder: itemBuilder,
         index: _activeIndex,
         curve: widget.curve,
+        reverse: widget.reverse,
         duration: widget.duration,
         onIndexChanged: _onIndexChanged,
         controller: _controller,
@@ -658,11 +663,13 @@ abstract class _SubSwiper extends StatefulWidget {
   final double? itemWidth;
   final double? itemHeight;
   final bool? loop;
+  final bool? reverse;
   final Axis? scrollDirection;
 
   _SubSwiper(
       {Key? key,
       this.loop,
+      this.reverse,
       this.itemHeight,
       this.itemWidth,
       this.duration,
@@ -735,10 +742,12 @@ class _StackSwiper extends _SubSwiper {
     IndexedWidgetBuilder? itemBuilder,
     int? index,
     bool? loop,
+    bool? reverse,
     int? itemCount,
     Axis? scrollDirection,
   }) : super(
             loop: loop,
+            reverse: reverse,
             key: key,
             itemWidth: itemWidth,
             itemHeight: itemHeight,
@@ -863,10 +872,22 @@ class _StackViewState extends _CustomLayoutStateBase<_StackSwiper> {
   void _updateValues() {
     if (widget.scrollDirection == Axis.horizontal) {
       final space = (_swiperWidth! - widget.itemWidth!) / 2;
-      offsets = [-space, -space / 3 * 2, -space / 3, 0.0, _swiperWidth];
+      // 需要反向时
+      if(widget.reverse??false){
+        offsets = [space, space / 3 * 2, space / 3, 0.0, -(_swiperWidth!)];
+      }else{
+        offsets = [-space, -space / 3 * 2, -space / 3, 0.0, _swiperWidth];
+      }
+
     } else {
       final space = (_swiperHeight! - widget.itemHeight!) / 2;
-      offsets = [-space, -space / 3 * 2, -space / 3, 0.0, _swiperHeight];
+      // 需要反向时
+      if(widget.reverse??false){
+        offsets = [space, space / 3 * 2, space / 3, 0.0, -(_swiperWidth!)];
+      }else{
+        offsets = [-space, -space / 3 * 2, -space / 3, 0.0, _swiperHeight];
+      }
+
     }
   }
 
@@ -901,9 +922,18 @@ class _StackViewState extends _CustomLayoutStateBase<_StackSwiper> {
         ? Offset(f!, 0.0)
         : Offset(0.0, f!);
 
-    final alignment = widget.scrollDirection == Axis.horizontal
-        ? Alignment.centerLeft
-        : Alignment.topCenter;
+    final alignment;
+
+    if(widget.reverse??false){
+      alignment = widget.scrollDirection == Axis.horizontal
+          ? Alignment.centerRight
+          : Alignment.bottomCenter;
+    }else{
+      alignment = widget.scrollDirection == Axis.horizontal
+          ? Alignment.centerLeft
+          : Alignment.topCenter;
+    }
+
 
     return Opacity(
       opacity: o,

@@ -207,10 +207,19 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
 
   void _onPanEnd(DragEndDetails details) {
     if (_lockScroll) return;
+    final velocity;
+    // 需要反向时
+    if(widget.reverse??false){
+      velocity = widget.scrollDirection == Axis.horizontal
+          ? -details.velocity.pixelsPerSecond.dx
+          : -details.velocity.pixelsPerSecond.dy;
+    }else{
+      velocity = widget.scrollDirection == Axis.horizontal
+          ? details.velocity.pixelsPerSecond.dx
+          : details.velocity.pixelsPerSecond.dy;
+    }
 
-    final velocity = widget.scrollDirection == Axis.horizontal
-        ? details.velocity.pixelsPerSecond.dx
-        : details.velocity.pixelsPerSecond.dy;
+
 
     if (_animationController!.value >= 0.75 || velocity > 500.0) {
       if (_currentIndex <= 0 && !widget.loop!) {
@@ -237,13 +246,28 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
 
   void _onPanUpdate(DragUpdateDetails details) {
     if (_lockScroll) return;
-    var value = _currentValue +
-        ((widget.scrollDirection == Axis.horizontal
-                    ? details.globalPosition.dx
-                    : details.globalPosition.dy) -
-                _currentPos) /
-            _swiperWidth! /
-            2;
+
+    var value;
+
+    // 需要反向时
+    if(widget.reverse??false){
+      value = _currentValue -
+          ((widget.scrollDirection == Axis.horizontal
+              ? details.globalPosition.dx
+              : details.globalPosition.dy) -
+              _currentPos) /
+              _swiperWidth! /
+              2;
+    }else{
+      value = _currentValue +
+          ((widget.scrollDirection == Axis.horizontal
+              ? details.globalPosition.dx
+              : details.globalPosition.dy) -
+              _currentPos) /
+              _swiperWidth! /
+              2;
+    }
+
     // no loop ?
     if (!widget.loop!) {
       if (_currentIndex >= widget.itemCount! - 1) {
