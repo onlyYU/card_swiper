@@ -130,12 +130,14 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
 
   bool _lockScroll = false;
 
-  void _move(double position, {int? nextIndex}) async {
+
+  /// 通过设置[duration] = 0 去掉动画，实现jumpTo
+  void _move(double position, {int? nextIndex,int? duration}) async {
     if (_lockScroll) return;
     try {
       _lockScroll = true;
       await _animationController!.animateTo(position,
-          duration: Duration(milliseconds: widget.duration!),
+          duration: Duration(milliseconds: duration??widget.duration!),
           curve: widget.curve!);
       if (nextIndex != null) {
         widget.onIndexChanged!(widget.getCorrectIndex(nextIndex));
@@ -193,6 +195,11 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
         final nextIndex = _nextIndex();
         if (nextIndex == _currentIndex) return;
         _move(0.0, nextIndex: nextIndex);
+        break;
+      case IndexController.JUMP:
+        var moveIndex = _moveIndex();
+        if (moveIndex == _currentIndex) return;
+        _move(moveIndex > _currentIndex ? 1.0 : 0.0, nextIndex: moveIndex,duration: 0);
         break;
       case IndexController.MOVE:
         var moveIndex = _moveIndex();

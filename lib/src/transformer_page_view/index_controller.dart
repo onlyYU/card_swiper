@@ -7,6 +7,7 @@ class IndexController extends ChangeNotifier {
   static const int NEXT = 1;
   static const int PREVIOUS = -1;
   static const int MOVE = 0;
+  static const int JUMP = 2;
 
   late Completer _completer;
 
@@ -18,6 +19,15 @@ class IndexController extends ChangeNotifier {
     this.animation = animation;
     this.index = index;
     event = MOVE;
+    _completer = Completer();
+    notifyListeners();
+    return _completer.future;
+  }
+
+  Future jump(int index, {bool animation = true}) {
+    this.animation = animation;
+    this.index = index;
+    event = JUMP;
     _completer = Completer();
     notifyListeners();
     return _completer.future;

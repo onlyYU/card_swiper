@@ -172,6 +172,7 @@ class _ExampleCustomState extends State<ExampleCustom> {
               ElevatedButton(
                 onPressed: () {
                   var text = numberController.text;
+                  _controller.jump(int.parse(text));
                   setState(() {
                     _currentIndex = int.parse(text);
                   });
